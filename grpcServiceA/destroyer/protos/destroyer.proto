@@ -18,35 +18,62 @@ import "google/protobuf/timestamp.proto";
       };
     
     }
+
+     rpc ListAllTargets(AllTargetReqest) returns (AllTargetResponse) {
+      option (google.api.http) =  {
+      get: "/v1/Destroyer/alltarget"
+      
+     };
+    }
+
+    rpc GetSingleTarget(GetSingleTargetRequest)returns (GetSingleTargetResponse){
+       option (google.api.http) = {
+         get:"/v1/Destroyer/singletarget/{target}"
+    };
+
   }
+}
+
+        
+    message GetSingleTargetRequest{
+      string id = 1;
+    }
+
+
+    message GetSingleTargetResponse{
+        string id = 2 ;      
+        string message = 4;
+        string created_on = 5;
+        string updated_on = 7;
+    }
+     
+
+     message  AllTargetReqest{}
+
+     message AllTargetResponse{
+      string  id = 4;
+      string targetname = 1;
+     repeated Data datas = 2;
+     string created_on =  3;
+     }
   
+
+     message Data {
+        string id = 2 ;      
+        string message = 4;
+        string created_on = 5;
+        string updated_on = 7;
+     }
   
 
   message DestroyerRequest{    
-      // id string = 1;
-       string message = 3;
-      //  repeated Datas2 datas = 2;
-      
-        // google.protobuf.Timestamp created_on = 5;
-        
-         
-  }  
+           string message = 3;
+       }  
   
-  // message Datas1 {
-  //    string actualmessage = 2;
-  // }
-       
-     
-
-
-
    message Datas2 {
        string id = 2 ;      
         string message = 4;
-        // google.protobuf.Timestamp created_on = 5;
-        //  google.protobuf.Timestamp updated_on = 3;
-        
-
+      
     }
 
 

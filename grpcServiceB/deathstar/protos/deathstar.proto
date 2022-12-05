@@ -12,6 +12,7 @@ import "google/protobuf/timestamp.proto";
   service  DestroyerService{
     rpc ConsumeAndWriteToDb(DestroyerRequest)returns ( DestroyerResponse) { 
       option (google.api.http) = {
+        
         get:"/v1/Destroyer/d" 
         body: "*"
         
