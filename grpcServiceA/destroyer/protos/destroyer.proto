@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package destroyer;
+
+import "google/api/annotations.proto";
+import "google/api/http.proto";
+import "google/protobuf/timestamp.proto";
+
+ option go_package = "github.com/franklynobleC/microserviceTask/grpcServiceA/destroyerService";
+
+
+  service  DestroyerService{
+    rpc AcquireTarget(DestroyerRequest)returns ( DestroyerResponse) { 
+      option (google.api.http) = {
+        post:"/v1/Destroyer/destroyer" 
+        body: "*"
+        
+      };
+    
+    }
+  }
+  
+  
+
+  message DestroyerRequest{    
+      // id string = 1;
+       string message = 3;
+      //  repeated Datas2 datas = 2;
+      
+        // google.protobuf.Timestamp created_on = 5;
+        
+         
+  }  
+  
+  // message Datas1 {
+  //    string actualmessage = 2;
+  // }
+       
+     
+
+
+
+   message Datas2 {
+       string id = 2 ;      
+        string message = 4;
+        // google.protobuf.Timestamp created_on = 5;
+        //  google.protobuf.Timestamp updated_on = 3;
+        
+
+    }
+
+
+   message DestroyerResponse{
+       string id = 2 ;      
+        string message = 4;
+        string created_on = 5;
+        string updated_on = 7;
+        // google.protobuf.Timestamp created_on = 5;
+        //  google.protobuf.Timestamp updated_on = 3;
+     
+      // repeated Datas2 datas = 2;
+      // google.protobuf.Timestamp created_on = 5;
+   }
+
+
+
