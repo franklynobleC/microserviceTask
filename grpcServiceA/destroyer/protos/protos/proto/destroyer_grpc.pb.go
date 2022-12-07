@@ -22,7 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DestroyerServiceClient interface {
-	AcquireTarget(ctx context.Context, in *DestroyerRequest, opts ...grpc.CallOption) (*DestroyerResponse, error)
+	AcquireTarget(ctx context.Context, in *AcquireTargetRequest, opts ...grpc.CallOption) (*AcquireTargetResponse, error)
+	ListAllTarget(ctx context.Context, in *ListAllTargetRequest, opts ...grpc.CallOption) (*ListAllTargetResponse, error)
+	GetSingleTarget(ctx context.Context, in *GetSingleTargetRequest, opts ...grpc.CallOption) (*GetSingleTargetResponse, error)
 }
 
 type destroyerServiceClient struct {
@@ -33,9 +35,27 @@ func NewDestroyerServiceClient(cc grpc.ClientConnInterface) DestroyerServiceClie
 	return &destroyerServiceClient{cc}
 }
 
-func (c *destroyerServiceClient) AcquireTarget(ctx context.Context, in *DestroyerRequest, opts ...grpc.CallOption) (*DestroyerResponse, error) {
-	out := new(DestroyerResponse)
+func (c *destroyerServiceClient) AcquireTarget(ctx context.Context, in *AcquireTargetRequest, opts ...grpc.CallOption) (*AcquireTargetResponse, error) {
+	out := new(AcquireTargetResponse)
 	err := c.cc.Invoke(ctx, "/destroyer.DestroyerService/AcquireTarget", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *destroyerServiceClient) ListAllTarget(ctx context.Context, in *ListAllTargetRequest, opts ...grpc.CallOption) (*ListAllTargetResponse, error) {
+	out := new(ListAllTargetResponse)
+	err := c.cc.Invoke(ctx, "/destroyer.DestroyerService/ListAllTarget", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *destroyerServiceClient) GetSingleTarget(ctx context.Context, in *GetSingleTargetRequest, opts ...grpc.CallOption) (*GetSingleTargetResponse, error) {
+	out := new(GetSingleTargetResponse)
+	err := c.cc.Invoke(ctx, "/destroyer.DestroyerService/GetSingleTarget", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,15 +66,23 @@ func (c *destroyerServiceClient) AcquireTarget(ctx context.Context, in *Destroye
 // All implementations should embed UnimplementedDestroyerServiceServer
 // for forward compatibility
 type DestroyerServiceServer interface {
-	AcquireTarget(context.Context, *DestroyerRequest) (*DestroyerResponse, error)
+	AcquireTarget(context.Context, *AcquireTargetRequest) (*AcquireTargetResponse, error)
+	ListAllTarget(context.Context, *ListAllTargetRequest) (*ListAllTargetResponse, error)
+	GetSingleTarget(context.Context, *GetSingleTargetRequest) (*GetSingleTargetResponse, error)
 }
 
 // UnimplementedDestroyerServiceServer should be embedded to have forward compatible implementations.
 type UnimplementedDestroyerServiceServer struct {
 }
 
-func (UnimplementedDestroyerServiceServer) AcquireTarget(context.Context, *DestroyerRequest) (*DestroyerResponse, error) {
+func (UnimplementedDestroyerServiceServer) AcquireTarget(context.Context, *AcquireTargetRequest) (*AcquireTargetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AcquireTarget not implemented")
+}
+func (UnimplementedDestroyerServiceServer) ListAllTarget(context.Context, *ListAllTargetRequest) (*ListAllTargetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListAllTarget not implemented")
+}
+func (UnimplementedDestroyerServiceServer) GetSingleTarget(context.Context, *GetSingleTargetRequest) (*GetSingleTargetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetSingleTarget not implemented")
 }
 
 // UnsafeDestroyerServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -69,7 +97,7 @@ func RegisterDestroyerServiceServer(s grpc.ServiceRegistrar, srv DestroyerServic
 }
 
 func _DestroyerService_AcquireTarget_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DestroyerRequest)
+	in := new(AcquireTargetRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -81,7 +109,43 @@ func _DestroyerService_AcquireTarget_Handler(srv interface{}, ctx context.Contex
 		FullMethod: "/destroyer.DestroyerService/AcquireTarget",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DestroyerServiceServer).AcquireTarget(ctx, req.(*DestroyerRequest))
+		return srv.(DestroyerServiceServer).AcquireTarget(ctx, req.(*AcquireTargetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DestroyerService_ListAllTarget_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAllTargetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DestroyerServiceServer).ListAllTarget(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/destroyer.DestroyerService/ListAllTarget",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DestroyerServiceServer).ListAllTarget(ctx, req.(*ListAllTargetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DestroyerService_GetSingleTarget_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSingleTargetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DestroyerServiceServer).GetSingleTarget(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/destroyer.DestroyerService/GetSingleTarget",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DestroyerServiceServer).GetSingleTarget(ctx, req.(*GetSingleTargetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -96,6 +160,14 @@ var DestroyerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AcquireTarget",
 			Handler:    _DestroyerService_AcquireTarget_Handler,
+		},
+		{
+			MethodName: "ListAllTarget",
+			Handler:    _DestroyerService_ListAllTarget_Handler,
+		},
+		{
+			MethodName: "GetSingleTarget",
+			Handler:    _DestroyerService_GetSingleTarget_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

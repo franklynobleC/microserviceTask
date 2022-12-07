@@ -26,16 +26,17 @@ import "google/protobuf/timestamp.proto";
   message DestroyerRequest{}        
          
    message Data {
-       string id = 2 ;      
+        string id = 2 ;      
         string message = 4;
-        google.protobuf.Timestamp created_on = 5;
-         google.protobuf.Timestamp updated_on = 3;
-
+        string created_on = 5;
+        string updated_on = 7;
+        // google.protobuf.Timestamp created_on = 5;
+        //  google.protobuf.Timestamp updated_on = 3;
     }
 
 
    message DestroyerResponse{
-        repeated Datas data = 2 ;
+        repeated Data data = 2 ;
    }
 
 
