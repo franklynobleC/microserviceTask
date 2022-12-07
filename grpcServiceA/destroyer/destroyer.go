@@ -89,23 +89,21 @@ func (srv *server) AcquireTarget(ctx context.Context, message1 *se.AcquireTarget
 		Message: message1.Message,
 	}
 	strings.TrimSpace(strings.ToLower(data.GetMessage()))
-	//  consumeWords(jst)
-	// ss := &se.DestroyerResponse.UpdatedOn
-	//    sss := itoa.Uitoa(uint(time.Now().Local().Unix()))
-	// sss, _ := time.Now().UTC().MarshalText()
-	// fmt.Println(string(v))
-	input := "2017-08-31"
-	layout := "2006-01-02"
-	t, _ := time.Parse(layout, input)
-	fmt.Println(t) // 2017-08-31 00:00:00 +0000 UTC
-	//   datestring := t.Format("02-Jan-2006")
+	
+
+
+     v, _ := time.Now().UTC().MarshalText()
+	dateString := string(v)
+
+
+
 
 	response := &se.AcquireTargetResponse{
 
 		Id:        uuid.NewString(),
 		Message:   data.GetMessage(),
-		CreatedOn: "Created1st",
-		UpdatedOn: "Created@nd",
+		Createdat:  dateString,
+		Updatedat:    dateString,
 	}
 
 	// nn = append(n, n...)
@@ -259,7 +257,7 @@ func (srv *server) ListAllTarget(ctx context.Context, req *se.ListAllTargetReque
 		Id:         uuid.NewString(),
 		Targetname: TargetEvent,
 		Datas:      TargetSlice,
-		CreatedOn:  dateString,
+		Createdat:  dateString,
 	}, nil
 
 }
@@ -302,7 +300,7 @@ func CreateStream(jetStream nats.JetStreamContext) error {
 	// stream  not found ,create it
 
 	if stream == nil {
-		log.Print("creating stream: %s\n", TargetEvent)
+		log.Printf("creating stream: %s\n", TargetEvent)
 
 		_, err = jetStream.AddStream(
 			&nats.StreamConfig{

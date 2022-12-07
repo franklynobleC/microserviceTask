@@ -29,10 +29,10 @@ const (
 )
 
 type SubScribePayLoad struct {
-	ID       string                `json:"id"`
-	Message    string             `json:"message"`
-	Created_on string             `json:"created_on"`
-	Updated_on string             `json:"updated_on"`
+	ID        string `json:"id"`
+	Message   string `json:"message"`
+	Createdat string `json:"createdat"`
+	Updatedat string `json:"updatedat"`
 }
 
 func main() {
@@ -238,19 +238,18 @@ func subScribeAndWrite() {
 	var SubM SubScribePayLoad
 	//use  the response
 	log.Print("from metadata", msg.Subject)
-    fmt.Print("Before marshaling", msg.Data)
+	fmt.Print("Before marshaling", msg.Data)
 
-
-	 err = json.Unmarshal(msg.Data, &SubM)
-                  fmt.Print("After UMarshalling", SubM)
+	err = json.Unmarshal(msg.Data, &SubM)
+	fmt.Print("After UMarshalling", SubM)
 	if err != nil {
 		log.Println("ERROR UNMARSHALLING FROM SERVICE B", err.Error())
 	}
 
 	log.Printf("Data: All Details printed %s", SubM)
-	
-           fmt.Print("Before Writing To Db", SubM)
-	nn := bson.D{{Key: "id", Value: SubM.ID}, {Key: "message", Value: SubM.Message}, {Key: "created_on", Value: SubM.Created_on}, {Key: "updated_on", Value: SubM.Updated_on}}
+
+	fmt.Print("Before Writing To Db", SubM)
+	nn := bson.D{{Key: "id", Value: SubM.ID}, {Key: "message", Value: SubM.Message}, {Key: "createdat", Value: SubM.Createdat}, {Key: "updatedat", Value: SubM.Updatedat}}
 
 	if err != nil {
 		log.Print("can not unmarshal")
