@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	// "strings"
 	// "crypto/rand"
 	"encoding/json"
 	"fmt"
@@ -9,7 +10,7 @@ import (
 	// "net"
 	// "net/http"
 	"os"
-	"time"
+	// "time"
 
 	// se "github.com/franklynobleC/microserviceTask/grpcServiceA/destroyer/protos/protos/proto"
 	// "github.com/grpc-ecosystem/grpc-gateway/v2/runtime" uncomment later
@@ -218,19 +219,32 @@ func subScribeAndWrite() {
 	//TODO: NATS CONNECTION
 	//subscribe to natsTopic
 	nc, err := ConnectToNats()
+
+	 nc.Subscribe("events.targets", func(msg *nats.Msg) {
+
+	 
+        fmt.Print("events Delivered")
+		// fmt.Print(string(msg.Data))
+		//  fmt.Print(msg.Data)
+	
 	if err != nil {
 		log.Println("could not connet to nats", err)
 	}
-	sub, err := nc.SubscribeSync(TargetEvent)
 
-	// nc.InMsgs
+
+	
+	
+	// fmt.Print(sub.Subject)
+	//     fmt.Print(sub.ConsumerInfo())
+
+	// /.InMsgs
 	if err != nil {
 		log.Print("error subscribing", err)
 	}
 
 	//wait for a  message
 	//wait for this number of seconds to get the using  this time out
-	msg, err := sub.NextMsg(50 * time.Second)
+	// msg, err := sub.NextMsg(50 * time.Second)
 
 	if err != nil {
 		log.Fatal(err.Error())
@@ -239,12 +253,13 @@ func subScribeAndWrite() {
 	//use  the response
 	log.Print("from metadata", msg.Subject)
 	fmt.Print("Before marshaling", msg.Data)
-
+      
 	err = json.Unmarshal(msg.Data, &SubM)
 	fmt.Print("After UMarshalling", SubM)
 	if err != nil {
 		log.Println("ERROR UNMARSHALLING FROM SERVICE B", err.Error())
 	}
+
 
 	log.Printf("Data: All Details printed %s", SubM)
 
@@ -284,5 +299,6 @@ func subScribeAndWrite() {
 		}
 
 	}
+})
 
 }

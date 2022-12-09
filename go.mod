@@ -30,6 +30,7 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/joho/godotenv v1.4.0
 	github.com/nats-io/nats.go v1.20.0
+	github.com/oklog/ulid v1.3.1
 	go.mongodb.org/mongo-driver v1.11.0
 	golang.org/x/net v0.2.0 // indirect
 	golang.org/x/sys v0.2.0 // indirect
