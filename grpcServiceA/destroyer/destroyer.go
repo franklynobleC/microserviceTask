@@ -30,6 +30,7 @@ import (
 
 const (
 	TargetEvent = "TARGET"
+		EventName= "targets.acquired"
 )
 
 type server struct {
@@ -131,7 +132,8 @@ func (srv *server) AcquireTarget(ctx context.Context, message1 *se.AcquireTarget
 	}
 	//    jst.Publish("targets.acquired",byteMessage)
 	//TODO: published bytes Message
-	jst.Publish(TargetEvent, byteMessage)
+	jst.Publish(EventName, byteMessage)
+	// defer pullSub()
 
 	return response, nil
 
@@ -146,6 +148,16 @@ func (srv *server) AcquireTarget(ctx context.Context, message1 *se.AcquireTarget
 }
 
 func (srv *server) GetSingleTarget(ctx context.Context, req *se.GetSingleTargetRequest) (*se.GetSingleTargetResponse, error) {
+
+	jst, err := JetStreamInit()
+	if err != nil {
+		log.Fatal("cant connect to nats ", err.Error())
+	}
+	fmt.Print("before  publishing")
+	err = CreateStream(jst)
+	if err != nil {
+		log.Fatal("cant create stream ", err.Error())
+	}
 
 	if len(req.Id) == 0 {
 
@@ -176,6 +188,8 @@ func (srv *server) GetSingleTarget(ctx context.Context, req *se.GetSingleTargetR
 
 		log.Println("can not get data")
 	}
+
+	
 	// fmt.Print(SinglePayLoad.String())
 
 	return SinglePayLoad, nil
@@ -221,7 +235,7 @@ func (srv *server) ListAllTarget(ctx context.Context, req *se.ListAllTargetReque
 
 	return &se.ListAllTargetResponse{
 		Id:         uuid.NewString(),
-		Targetname: TargetEvent,
+		Targetname:  EventName,
 		Datas:      TargetSlice,
 		Createdat:  dateString,
 	}, nil
@@ -271,7 +285,7 @@ func CreateStream(jetStream nats.JetStreamContext) error {
 		_, err = jetStream.AddStream(
 			&nats.StreamConfig{
 				Name:     TargetEvent,
-				Subjects: []string{"targets.acquired"},
+				Subjects: []string{EventName},
 			},
 		)
 

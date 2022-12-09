@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	// "sync"
+	"time"
 	// "strings"
 	// "crypto/rand"
 	"encoding/json"
@@ -27,6 +29,7 @@ import (
 
 const (
 	TargetEvent = "TARGET"
+	EventName= "targets.acquired"
 )
 
 type SubScribePayLoad struct {
@@ -114,98 +117,11 @@ func ConnectMongo() (*mongo.Collection, error) {
 }
 
 //subscribe NATS to a topic and write to Database
-// func subScribeAndWrite() {
-
-// 	// 	//TODO: connect to Database and get Database Client
-
-// 	deathstarCollection, err := ConnectMongo()
-
-// 	if err != nil {
-// 		log.Fatal("could not connect to mongo Db")
-// 	}
-// 	fmt.Print("database connected successfully")
-
-// 	fmt.Print("database created", deathstarCollection.Database())
-
-// 	//TODO: NATS CONNECTION
-// 	//subscribe to natsTopic
-// 	nc, err := ConnectToNats()
-// 	if err != nil {
-// 		log.Println("could not connet to nats", err)
-// 	}
-
-// 	sub, err := nc.SubscribeSync(Target)
-
-// 	// nc.InMsgs
-
-// 	if err != nil {
-// 		log.Print("error subscribing", err)
-// 	}
-
-// 	//wait for a  message
-// 	//wait for this number of seconds to get the using  this time out
-// 	msg, err := sub.NextMsg(50 * time.Second)
-
-// 	if err != nil {
-// 		log.Fatal(err.Error())
-// 	}
-// 	var SubM SubScribePayLoad
-// 	//use  the response
-// 	log.Print("from metadata", msg.Subject)
-
-// 	_ = json.Unmarshal(msg.Data, &SubM)
-
-// 	if err != nil {
-// 		log.Println("ERROR UNMARSHALLING FROM SERVICE B", err)
-// 	}
-
-// 	log.Println("Data: All Details printed", SubM)
-// 	// smg := string(msg.Data)
-
-// 	// msg.Metadata().
-// 	//    SubM.Created_on = SubM.Created_on
-
-// 	// enter valur to write to datatbase
-// 	// id, _ := primitive.ObjectIDFromHex(SubM.Updated_on.String())
-// 	// id1, _ := primitive.ObjectIDFromHex(SubM.Created_on.String())
-// 	nn := bson.D{{Key: "id", Value: (SubM.ID)}, {Key: "message", Value: SubM.Message}, {Key: "created_on", Value: SubM.Created_on}, {Key: "updated_on", Value: SubM.Updated_on}}
-
-// 	if err != nil {
-// 		log.Print("can not unmarshal")
-// 	}
-
-// 	words, err := deathstarCollection.InsertOne(context.TODO(), nn)
-
-// 	if err != nil {
-// 		log.Print("could not insert data", err.Error())
-// 	}
-// 	//else diplay the id of the newly inserted ID
-// 	fmt.Println(words.InsertedID)
-
-// 	fil, err := deathstarCollection.Find(context.TODO(), nn)
-
-// 	defer fil.Close(context.Background())
-
-// 	for fil.Next(context.Background()) {
-
-// 		result := struct {
-// 			m map[string]string
-// 		}{}
-
-// 		err := fil.Decode(&result)
-
-// 		if err != nil {
-// 			log.Fatal(err.Error(), "decoding data")
-// 		}
-
-// 	}
-
-// }
-
-//subscribe NATS to a topic and write to Database
 func subScribeAndWrite() {
 
-	// 	//TODO: connect to Database and get Database Client
+	// wg := sync.WaitGroup{}
+	// wg.Add(1)
+	//TODO: connect to Database and get Database Client\
 
 	wordDictionary, err := ConnectMongo()
 
@@ -219,32 +135,17 @@ func subScribeAndWrite() {
 	//TODO: NATS CONNECTION
 	//subscribe to natsTopic
 	nc, err := ConnectToNats()
+	// this would wait for incomming message from Name "targets.acquired" in order as  they arrive
 
-	 nc.Subscribe("events.targets", func(msg *nats.Msg) {
+	sub, _ := nc.SubscribeSync(EventName)
+	// wg.Done()
+	fmt.Print("events Delivered")
 
-	 
-        fmt.Print("events Delivered")
-		// fmt.Print(string(msg.Data))
-		//  fmt.Print(msg.Data)
-	
 	if err != nil {
 		log.Println("could not connet to nats", err)
 	}
 
-
-	
-	
-	// fmt.Print(sub.Subject)
-	//     fmt.Print(sub.ConsumerInfo())
-
-	// /.InMsgs
-	if err != nil {
-		log.Print("error subscribing", err)
-	}
-
-	//wait for a  message
-	//wait for this number of seconds to get the using  this time out
-	// msg, err := sub.NextMsg(50 * time.Second)
+	msg, err := sub.NextMsg(50 * time.Second)
 
 	if err != nil {
 		log.Fatal(err.Error())
@@ -253,13 +154,12 @@ func subScribeAndWrite() {
 	//use  the response
 	log.Print("from metadata", msg.Subject)
 	fmt.Print("Before marshaling", msg.Data)
-      
+
 	err = json.Unmarshal(msg.Data, &SubM)
 	fmt.Print("After UMarshalling", SubM)
 	if err != nil {
 		log.Println("ERROR UNMARSHALLING FROM SERVICE B", err.Error())
 	}
-
 
 	log.Printf("Data: All Details printed %s", SubM)
 
@@ -299,6 +199,5 @@ func subScribeAndWrite() {
 		}
 
 	}
-})
 
 }
