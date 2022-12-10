@@ -3,41 +3,32 @@ package main
 import (
 	"context"
 	// "sync"
-	"time"
-	// "strings"
-	// "crypto/rand"
 	"encoding/json"
 	"fmt"
 	"log"
-	// "net"
-	// "net/http"
 	"os"
-	// "time"
+	"time"
 
-	// se "github.com/franklynobleC/microserviceTask/grpcServiceA/destroyer/protos/protos/proto"
-	// "github.com/grpc-ecosystem/grpc-gateway/v2/runtime" uncomment later
 	"github.com/joho/godotenv"
 	"github.com/nats-io/nats.go"
 	"go.mongodb.org/mongo-driver/bson"
-	// "go.mongodb.org/mongo-driver/bson/primitive"
-	// "go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	// "google.golang.org/protobuf/types/known/timestamppb"
-	// "go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
 )
 
 const (
 	TargetEvent = "TARGET"
-	EventName= "targets.acquired"
+	EventName   = "targets.acquired"
 )
-
+    
+//payload to subscribe to
 type SubScribePayLoad struct {
 	ID        string `json:"id"`
 	Message   string `json:"message"`
 	Createdat string `json:"createdat"`
 	Updatedat string `json:"updatedat"`
 }
+
 
 func main() {
 
@@ -123,14 +114,14 @@ func subScribeAndWrite() {
 	// wg.Add(1)
 	//TODO: connect to Database and get Database Client\
 
-	wordDictionary, err := ConnectMongo()
+	deathstarCollection, err := ConnectMongo()
 
 	if err != nil {
 		log.Fatal("could not connect to mongo Db")
 	}
 	fmt.Print("database connected successfully")
 
-	fmt.Print("database created", wordDictionary.Database())
+	fmt.Print("database created", deathstarCollection.Database())
 
 	//TODO: NATS CONNECTION
 	//subscribe to natsTopic
@@ -150,7 +141,7 @@ func subScribeAndWrite() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	var SubM SubScribePayLoad
+	var SubM   SubScribePayLoad
 	//use  the response
 	log.Print("from metadata", msg.Subject)
 	fmt.Print("Before marshaling", msg.Data)
@@ -170,34 +161,31 @@ func subScribeAndWrite() {
 		log.Print("can not unmarshal")
 	}
 
-	words, err := wordDictionary.InsertOne(context.TODO(), nn)
+	target, err := deathstarCollection.InsertOne(context.TODO(), nn)
 
 	if err != nil {
 		log.Print("could not insert data", err.Error())
 	}
 	//else diplay the id of the newly inserted ID
-	fmt.Println(words.InsertedID)
-
-	fil, err := wordDictionary.Find(context.TODO(), nn)
-
-	// Ok := fil.Next(context.TODO())
-
-	defer fil.Close(context.Background())
-	// fmt.Println(fil.Next(context.TODO()))
-	//  fmt.Print(fil.Decode(fil))
-
-	for fil.Next(context.Background()) {
-
-		result := struct {
-			m map[string]string
-		}{}
-
-		err := fil.Decode(&result)
-
-		if err != nil {
-			log.Fatal(err.Error(), "decoding data")
-		}
-
-	}
-
+	fmt.Println(target.InsertedID)
 }
+
+// 	fil, err := deathstarCollection.Find(context.TODO(), nn)
+
+// 	defer fil.Close(context.Background())
+
+// 	for fil.Next(context.Background()) {
+
+// 		result := struct {
+// 			m map[string]string
+// 		}{}
+
+// 		err := fil.Decode(&result)
+
+// 		if err != nil {
+// 			log.Fatal(err.Error(), "decoding data")
+// 		}
+
+// 	}
+
+// }

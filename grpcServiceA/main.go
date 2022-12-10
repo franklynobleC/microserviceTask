@@ -12,9 +12,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	// "time"
 
-	// uuidv3 "github.com/envoyproxy/go-control-plane/envoy/extensions/request_id/uuid/v3"
 	se "github.com/franklynobleC/microserviceTask/grpcServiceA/destroyer/protos/protos/proto"
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -23,14 +21,14 @@ import (
 	"github.com/oklog/ulid"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	// "go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const (
 	TargetEvent = "TARGET"
-		EventName= "targets.acquired"
+	EventName   = "targets.acquired"
+	EventAction = ""
 )
 
 type server struct {
@@ -45,13 +43,6 @@ func NewServer() *server {
 
 type SingleEntryPayload struct {
 	Message string `json:"message"`
-}
-
-type PublishPayload struct {
-	Id         string `json:"id"`
-	Messaage   string `json:"messaage"`
-	Created_on string `json:"created_on"`
-	Updated_on string `json:"updated_on"`
 }
 
 func ConnectMongo() (*mongo.Collection, error) {
@@ -91,14 +82,18 @@ func (srv *server) AcquireTarget(ctx context.Context, message1 *se.AcquireTarget
 	}
 	strings.TrimSpace(strings.ToLower(data.GetMessage()))
 
+	//conver date to string
+
 	v, _ := time.Now().UTC().MarshalText()
 	dateString := string(v)
 
+	//convert is to uuids autogenerate
 	t := time.Now().UTC()
 	entropy := rand.New(rand.NewSource(t.UnixNano()))
 	id := ulid.MustNew(ulid.Timestamp(t), entropy)
 	uids := id.String()
 
+	//initialise Values to proto, to return to respo
 	response := &se.AcquireTargetResponse{
 
 		Id:        uids,
@@ -107,15 +102,9 @@ func (srv *server) AcquireTarget(ctx context.Context, message1 *se.AcquireTarget
 		Updatedat: dateString,
 	}
 
-	// nn = append(n, n...)
-
 	//    convert messages to byte
 	byteMessage, _ := json.Marshal(response)
 
-	// if err != nil {
-	// 	log.Println("can not marshall", err)
-	// 	//  strings(newe)
-	// }
 	//TODO: publish to topic would UnComment this
 	jst, err := JetStreamInit()
 	if err != nil {
@@ -147,6 +136,8 @@ func (srv *server) AcquireTarget(ctx context.Context, message1 *se.AcquireTarget
 
 }
 
+// Get Single Data from all Datas
+
 func (srv *server) GetSingleTarget(ctx context.Context, req *se.GetSingleTargetRequest) (*se.GetSingleTargetResponse, error) {
 
 	jst, err := JetStreamInit()
@@ -164,7 +155,7 @@ func (srv *server) GetSingleTarget(ctx context.Context, req *se.GetSingleTargetR
 		log.Println("please enter a  valid id")
 	}
 	fmt.Print(req.Id)
-	//   dd := req.String()
+
 	// convert string id (from proto) to mongoDB ObjectId
 	oId, err := primitive.ObjectIDFromHex(req.GetId())
 
@@ -189,13 +180,12 @@ func (srv *server) GetSingleTarget(ctx context.Context, req *se.GetSingleTargetR
 		log.Println("can not get data")
 	}
 
-	
-	// fmt.Print(SinglePayLoad.String())
-
 	return SinglePayLoad, nil
 
 }
 
+
+//Get All Data from Data base, all acquired targets
 func (srv *server) ListAllTarget(ctx context.Context, req *se.ListAllTargetRequest) (*se.ListAllTargetResponse, error) {
 
 	AllTargetClient, err := ConnectMongo()
@@ -235,13 +225,15 @@ func (srv *server) ListAllTarget(ctx context.Context, req *se.ListAllTargetReque
 
 	return &se.ListAllTargetResponse{
 		Id:         uuid.NewString(),
-		Targetname:  EventName,
+		Targetname: EventName,
 		Datas:      TargetSlice,
 		Createdat:  dateString,
 	}, nil
 
 }
 
+
+//Main Entry Point  to grpc Server
 func main() {
 
 	grpcMux := runtime.NewServeMux()
@@ -274,6 +266,8 @@ func main() {
 	}
 }
 
+
+//Create stream To Send to JetStream
 func CreateStream(jetStream nats.JetStreamContext) error {
 
 	stream, err := jetStream.StreamInfo(TargetEvent)
@@ -299,6 +293,7 @@ func CreateStream(jetStream nats.JetStreamContext) error {
 	return nil
 
 }
+  
 
 func JetStreamInit() (nats.JetStreamContext, error) {
 
@@ -319,7 +314,9 @@ func JetStreamInit() (nats.JetStreamContext, error) {
 	return js, nil
 
 }
+ 
 
+//Get connection  to Nats
 func ConnectToNats() (*nats.Conn, error) {
 
 	nc, err := nats.Connect(os.Getenv("JESTREAM_URL"))
@@ -330,7 +327,7 @@ func ConnectToNats() (*nats.Conn, error) {
 
 	log.Println("connected to Jetstream", nc.ConnectedAddr())
 
-	//subscribe
-	//    nc.Publish("event.targst", )
+	
+	
 	return nc, nil
 }
