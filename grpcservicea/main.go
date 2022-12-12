@@ -121,7 +121,7 @@ func (srv *server) AcquireTarget(ctx context.Context, message1 *se.AcquireTarget
 	}
 	//    jst.Publish("targets.acquired",byteMessage)
 	//TODO: published bytes Message
-	jst.Publish(TargetEvent, byteMessage)
+	jst.Publish(EventName, byteMessage)
 	// defer pullSub()
 
 	return response, nil
@@ -266,7 +266,7 @@ func CreateStream(jetStream nats.JetStreamContext) error {
 		_, err = jetStream.AddStream(
 			&nats.StreamConfig{
 				Name:     TargetEvent,
-				// Subjects: []string{EventName},
+				Subjects: []string{EventName},
 			},
 		)
 

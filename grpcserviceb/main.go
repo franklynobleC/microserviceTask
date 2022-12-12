@@ -100,7 +100,7 @@ func subScribeAndWrite() {
 	nc, err := ConnectToNats()
 	// this would wait for incomming message from Name "targets.acquired" in order as  they arrive
 
-	sub, _ := nc.SubscribeSync(TargetEvent)
+	sub, _ := nc.SubscribeSync(EventName)
 	// wg.Done()
 	fmt.Print("events Delivered")
 
@@ -108,7 +108,7 @@ func subScribeAndWrite() {
 		log.Println("could not connet to nats", err)
 	}
 
-	msg, err := sub.NextMsg(50 * time.Second)
+	msg, err := sub.NextMsg(100 * time.Second)
 
 	if err != nil {
 		log.Fatal(err.Error())
