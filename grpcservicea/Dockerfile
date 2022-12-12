@@ -10,7 +10,7 @@ RUN go mod download
 
 COPY  . . 
 
-RUN go build -o docker-grpc-microservicea  grpcservicea/main.go
+RUN go build -o docker-grpc-microservicea main.go
 
 
 
@@ -19,7 +19,7 @@ WORKDIR /app
 
 COPY --from=builder /app/docker-grpc-microservicea  . 
 
-COPY ./grpcservicea/.env .
+COPY ./.env .
 
 EXPOSE 5000
 

@@ -1,0 +1,46 @@
+version: "3.5"
+services:
+  nats:
+    container_name: "Nats"
+    image: nats:alpine
+    command: [ "-js", "-m", "8080" ]
+
+
+    restart: on-failure
+  
+    expose:
+      - "4222"
+    ports:
+      - "4222:4222"
+    hostname: nats-server 
+
+
+ 
+    volumes:
+       - ./config/:/etc/nats
+
+                
+  grpcservicea:
+      build: .
+      ports:
+             #  - app-tier
+      - 5000:5000
+      # environment:
+      #  - "NATS_URI=nats://nats:4222"
+      depends_on: 
+      - nats
+    
+
+  grpcserviceb: 
+      build: ./grpcserviceb
+      ports:
+      - 7000 
+      depends_on:
+        - nats 
+            
+   
+      #  
+
+# networks:
+#     nats:
+#         name: nats     

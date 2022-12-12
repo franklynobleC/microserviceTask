@@ -13,7 +13,7 @@ import (
 	"os"
 	"strings"
 
-	se "github.com/franklynobleC/microserviceTask/grpcServiceA/destroyer/protos/protos/proto"
+	se "github.com/franklynobleC/microserviceTask/grpcservicea/destroyer/protos/protos/proto"
 	"github.com/google/uuid"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/joho/godotenv"
@@ -108,31 +108,26 @@ func (srv *server) AcquireTarget(ctx context.Context, message1 *se.AcquireTarget
 	//TODO: publish to topic would UnComment this
 	jst, err := JetStreamInit()
 	if err != nil {
-		log.Fatal("cant connect to nats ", err.Error())
+		log.Fatal("cant connect to nats service a acquired func ", err.Error())
 	}
 	fmt.Print("before  publishing", string(byteMessage))
 	err = CreateStream(jst)
 	if err != nil {
-		log.Fatal("cant create stream ", err.Error())
+		log.Fatal("cant create stream from acquired ", err.Error())
 	}
 
 	if err != nil {
-		log.Fatal("cant create stream ", err.Error())
+		log.Fatal("cant create stream from acquired ", err.Error())
 	}
 	//    jst.Publish("targets.acquired",byteMessage)
 	//TODO: published bytes Message
-	jst.Publish(EventName, byteMessage)
+	jst.Publish(TargetEvent, byteMessage)
 	// defer pullSub()
 
 	return response, nil
 
-	// }
-	// //TODO: publish to topic
 
-	// //TODO: published bytes Message
-	//  jst.Publish(TargetEvent, byteMessage)
 
-	//  return response, nil
 
 }
 
@@ -140,21 +135,15 @@ func (srv *server) AcquireTarget(ctx context.Context, message1 *se.AcquireTarget
 
 func (srv *server) GetSingleTarget(ctx context.Context, req *se.GetSingleTargetRequest) (*se.GetSingleTargetResponse, error) {
 
-	jst, err := JetStreamInit()
-	if err != nil {
-		log.Fatal("cant connect to nats ", err.Error())
-	}
-	fmt.Print("before  publishing")
-	err = CreateStream(jst)
-	if err != nil {
-		log.Fatal("cant create stream ", err.Error())
-	}
-
+	singlecollection, err := ConnectMongo()
+	
 	if len(req.Id) == 0 {
 
 		log.Println("please enter a  valid id")
 	}
 	fmt.Print(req.Id)
+
+	
 
 	// convert string id (from proto) to mongoDB ObjectId
 	oId, err := primitive.ObjectIDFromHex(req.GetId())
@@ -164,11 +153,9 @@ func (srv *server) GetSingleTarget(ctx context.Context, req *se.GetSingleTargetR
 		log.Println("cant convert Ob Id", err.Error())
 	}
 
-	//  PublishPayload   := se.GetSingleTargetResponse{}
-
 	SinglePayLoad := &se.GetSingleTargetResponse{}
 
-	singlecollection, err := ConnectMongo()
+	
 
 	if err != nil {
 		log.Println("can not connect to mongo db")
@@ -279,7 +266,7 @@ func CreateStream(jetStream nats.JetStreamContext) error {
 		_, err = jetStream.AddStream(
 			&nats.StreamConfig{
 				Name:     TargetEvent,
-				Subjects: []string{EventName},
+				// Subjects: []string{EventName},
 			},
 		)
 
@@ -306,6 +293,8 @@ func JetStreamInit() (nats.JetStreamContext, error) {
 
 	js, err := nc.JetStream(nats.PublishAsyncMaxPending(256))
 
+	log.Println("connected to Nats from service A")
+
 	if err != nil {
 		log.Println("could not publish to Jestream")
 		return nil, err
@@ -319,13 +308,13 @@ func JetStreamInit() (nats.JetStreamContext, error) {
 //Get connection  to Nats
 func ConnectToNats() (*nats.Conn, error) {
 
-	nc, err := nats.Connect(os.Getenv("JESTREAM_URL"))
+	nc, err := nats.Connect("nats://Nats:4222")
 
 	if err != nil {
-		log.Println("coudl not connect to Nats", err.Error())
+		log.Println("coudl not connect to Nats servicea", err.Error())
 	}
 
-	log.Println("connected to Jetstream", nc.ConnectedAddr())
+	log.Println("connected to nats servicea", nc.ConnectedAddr())
 
 	
 	

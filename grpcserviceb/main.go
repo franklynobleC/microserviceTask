@@ -20,7 +20,7 @@ const (
 	TargetEvent = "TARGET"
 	EventName   = "targets.acquired"
 )
-    
+
 //payload to subscribe to
 type SubScribePayLoad struct {
 	ID        string `json:"id"`
@@ -29,51 +29,23 @@ type SubScribePayLoad struct {
 	Updatedat string `json:"updatedat"`
 }
 
-
 func main() {
+	 ConnectToNats()
 
 	subScribeAndWrite()
+	
 
-	// 	grpcMux := runtime.NewServeMux()
-	// 	ctx, cancel := context.WithCancel(context.Background())
-
-	// 	defer cancel()
-
-	// 	err := se.RegisterDestroyerServiceHandlerServer(ctx, grpcMux, NewServer())
-
-	// 	if err != nil {
-	// 		log.Fatal("can not register handler Server", err)
-	// 	}
-
-	// 	mux := http.NewServeMux()
-
-	// 	mux.Handle("/", grpcMux)
-
-	// 	listener, err := net.Listen("tcp", ":5000")
-
-	// 	if err != nil {
-	// 		log.Fatal("can not create listener", err)
-	// 	}
-
-	// 	log.Println("http Gateway Server is being Started", listener.Addr().String())
-
-	// 	err = http.Serve(listener, mux)
-
-	// 	if err != nil {
-	// 		log.Fatal("can not start grpc server", err)
-	// 	}
-	// }
 }
 
 func ConnectToNats() (*nats.Conn, error) {
 
-	nc, err := nats.Connect(os.Getenv("JESTREAM_URL"))
+	nc, err := nats.Connect("nats://nats:4222")
 
 	if err != nil {
 		log.Println("coudl not connect to Nats", err.Error())
 	}
 
-	log.Println("connected to Jetstream", nc.ConnectedAddr())
+	log.Println("connected to Nats from Service B", nc.ConnectedAddr())
 
 	//subscribe
 
@@ -128,7 +100,7 @@ func subScribeAndWrite() {
 	nc, err := ConnectToNats()
 	// this would wait for incomming message from Name "targets.acquired" in order as  they arrive
 
-	sub, _ := nc.SubscribeSync(EventName)
+	sub, _ := nc.SubscribeSync(TargetEvent)
 	// wg.Done()
 	fmt.Print("events Delivered")
 
@@ -141,7 +113,7 @@ func subScribeAndWrite() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
-	var SubM   SubScribePayLoad
+	var SubM SubScribePayLoad
 	//use  the response
 	log.Print("from metadata", msg.Subject)
 	fmt.Print("Before marshaling", msg.Data)
@@ -169,23 +141,3 @@ func subScribeAndWrite() {
 	//else diplay the id of the newly inserted ID
 	fmt.Println(target.InsertedID)
 }
-
-// 	fil, err := deathstarCollection.Find(context.TODO(), nn)
-
-// 	defer fil.Close(context.Background())
-
-// 	for fil.Next(context.Background()) {
-
-// 		result := struct {
-// 			m map[string]string
-// 		}{}
-
-// 		err := fil.Decode(&result)
-
-// 		if err != nil {
-// 			log.Fatal(err.Error(), "decoding data")
-// 		}
-
-// 	}
-
-// }
