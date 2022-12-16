@@ -18,8 +18,17 @@ import "google/protobuf/timestamp.proto";
       };
     
     }
+     
 
-     rpc ListAllTarget(ListAllTargetRequest) returns (ListAllTargetResponse) {
+     rpc ListMultipleTarget(ListMultipleTargetRequest) returns (ListMultipleTargetResponse) {
+      option (google.api.http) =  {
+      get: "/v1/Destroyer/multipletarget"
+      
+     };
+    }
+
+
+    rpc ListAllTarget(ListAllTargetRequest) returns (ListAllTargetResponse) {
       option (google.api.http) =  {
       get: "/v1/Destroyer/alltarget"
       
@@ -52,6 +61,19 @@ import "google/protobuf/timestamp.proto";
        
     }
      
+
+     message  ListMultipleTargetRequest{}
+
+     message ListMultipleTargetResponse{
+      string  id = 4;
+      string targetname = 1;
+      repeated Data datas = 2;
+       string createdat = 5;
+        
+           
+     }
+  
+
 
      message  ListAllTargetRequest{}
 

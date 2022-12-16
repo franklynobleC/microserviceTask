@@ -106,7 +106,8 @@ func subScribeAndWrite() {
 
 	if err != nil {
 		log.Println("could not connet to nats", err)
-	}
+	} 
+	for {
 
 	msg, err := sub.NextMsg(100 * time.Second)
 
@@ -140,4 +141,5 @@ func subScribeAndWrite() {
 	}
 	//else diplay the id of the newly inserted ID
 	fmt.Println(target.InsertedID)
+}
 }

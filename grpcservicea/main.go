@@ -126,9 +126,6 @@ func (srv *server) AcquireTarget(ctx context.Context, message1 *se.AcquireTarget
 
 	return response, nil
 
-
-
-
 }
 
 // Get Single Data from all Datas
@@ -136,14 +133,12 @@ func (srv *server) AcquireTarget(ctx context.Context, message1 *se.AcquireTarget
 func (srv *server) GetSingleTarget(ctx context.Context, req *se.GetSingleTargetRequest) (*se.GetSingleTargetResponse, error) {
 
 	singlecollection, err := ConnectMongo()
-	
+
 	if len(req.Id) == 0 {
 
 		log.Println("please enter a  valid id")
 	}
 	fmt.Print(req.Id)
-
-	
 
 	// convert string id (from proto) to mongoDB ObjectId
 	oId, err := primitive.ObjectIDFromHex(req.GetId())
@@ -154,8 +149,6 @@ func (srv *server) GetSingleTarget(ctx context.Context, req *se.GetSingleTargetR
 	}
 
 	SinglePayLoad := &se.GetSingleTargetResponse{}
-
-	
 
 	if err != nil {
 		log.Println("can not connect to mongo db")
@@ -170,7 +163,6 @@ func (srv *server) GetSingleTarget(ctx context.Context, req *se.GetSingleTargetR
 	return SinglePayLoad, nil
 
 }
-
 
 //Get All Data from Data base, all acquired targets
 func (srv *server) ListAllTarget(ctx context.Context, req *se.ListAllTargetRequest) (*se.ListAllTargetResponse, error) {
@@ -190,9 +182,9 @@ func (srv *server) ListAllTarget(ctx context.Context, req *se.ListAllTargetReque
 	// var TagSlice2 *se.Data
 	for cur.Next(context.Background()) {
 
-		lt := new(se.Data)
+		targetslicetoadd := new(se.Data)
 
-		err = cur.Decode(&lt)
+		err = cur.Decode(&targetslicetoadd)
 
 		if err != nil {
 			log.Println("can not get result")
@@ -200,10 +192,10 @@ func (srv *server) ListAllTarget(ctx context.Context, req *se.ListAllTargetReque
 		// log.Println(string(lt.String()), "///last Convert")
 		fmt.Print("\n")
 		fmt.Print("------------------------------------------------")
-		fmt.Println(lt)
+		fmt.Println(targetslicetoadd)
 
 		//  ss := string(lt.String())
-		TargetSlice = append(TargetSlice, lt)
+		TargetSlice = append(TargetSlice, targetslicetoadd)
 	}
 	//  fmt.Println(string(T))
 	v, _ := time.Now().UTC().MarshalText()
@@ -219,6 +211,47 @@ func (srv *server) ListAllTarget(ctx context.Context, req *se.ListAllTargetReque
 
 }
 
+// ListMultipleTarget: acquired multiple target from database, but limited to 3
+func (srv *server) ListMultipleTarget(ctx context.Context, req *se.ListMultipleTargetRequest) (*se.ListMultipleTargetResponse, error) {
+
+	AllTargetClient, err := ConnectMongo()
+
+	fmt.Print("database created", AllTargetClient.Database())
+	fmt.Print("database created", AllTargetClient.Database())
+
+	  limitStage := bson.D{{"$limit", 3}}
+	cur, err := AllTargetClient.Aggregate(context.TODO(), mongo.Pipeline{limitStage})
+
+	if err != nil {
+		log.Println("returned error from getting data", err.Error())
+	}
+TargetSlice := []*se.Data{}
+	
+      if err := cur.All(context.TODO(), &TargetSlice); err != nil {
+          fmt.Println("error from limit")
+	   }  
+
+		if err != nil {
+			log.Println("can not get result")
+		}
+		// log.Println(string(lt.String()), "///last Convert")
+		fmt.Print("\n")
+		fmt.Print("------------------------------------------------")
+		fmt.Println(TargetSlice)
+
+	//  convert Data time to string
+	v, _ := time.Now().UTC().MarshalText()
+	dateString := string(v)
+	fmt.Println("FROM 	UNMARSHALLING")
+
+	return &se.ListMultipleTargetResponse{
+		Id:         uuid.NewString(),
+		Targetname: EventName,
+		Datas:      TargetSlice,
+		Createdat:  dateString,
+	}, nil
+
+}
 
 //Main Entry Point  to grpc Server
 func main() {
@@ -253,7 +286,6 @@ func main() {
 	}
 }
 
-
 //Create stream To Send to JetStream
 func CreateStream(jetStream nats.JetStreamContext) error {
 
@@ -280,7 +312,6 @@ func CreateStream(jetStream nats.JetStreamContext) error {
 	return nil
 
 }
-  
 
 func JetStreamInit() (nats.JetStreamContext, error) {
 
@@ -303,7 +334,6 @@ func JetStreamInit() (nats.JetStreamContext, error) {
 	return js, nil
 
 }
- 
 
 //Get connection  to Nats
 func ConnectToNats() (*nats.Conn, error) {
@@ -316,7 +346,5 @@ func ConnectToNats() (*nats.Conn, error) {
 
 	log.Println("connected to nats servicea", nc.ConnectedAddr())
 
-	
-	
 	return nc, nil
 }

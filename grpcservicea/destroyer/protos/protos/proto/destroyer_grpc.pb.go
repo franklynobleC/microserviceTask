@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DestroyerServiceClient interface {
 	AcquireTarget(ctx context.Context, in *AcquireTargetRequest, opts ...grpc.CallOption) (*AcquireTargetResponse, error)
+	ListMultipleTarget(ctx context.Context, in *ListMultipleTargetRequest, opts ...grpc.CallOption) (*ListMultipleTargetResponse, error)
 	ListAllTarget(ctx context.Context, in *ListAllTargetRequest, opts ...grpc.CallOption) (*ListAllTargetResponse, error)
 	GetSingleTarget(ctx context.Context, in *GetSingleTargetRequest, opts ...grpc.CallOption) (*GetSingleTargetResponse, error)
 }
@@ -38,6 +39,15 @@ func NewDestroyerServiceClient(cc grpc.ClientConnInterface) DestroyerServiceClie
 func (c *destroyerServiceClient) AcquireTarget(ctx context.Context, in *AcquireTargetRequest, opts ...grpc.CallOption) (*AcquireTargetResponse, error) {
 	out := new(AcquireTargetResponse)
 	err := c.cc.Invoke(ctx, "/destroyer.DestroyerService/AcquireTarget", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *destroyerServiceClient) ListMultipleTarget(ctx context.Context, in *ListMultipleTargetRequest, opts ...grpc.CallOption) (*ListMultipleTargetResponse, error) {
+	out := new(ListMultipleTargetResponse)
+	err := c.cc.Invoke(ctx, "/destroyer.DestroyerService/ListMultipleTarget", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -67,6 +77,7 @@ func (c *destroyerServiceClient) GetSingleTarget(ctx context.Context, in *GetSin
 // for forward compatibility
 type DestroyerServiceServer interface {
 	AcquireTarget(context.Context, *AcquireTargetRequest) (*AcquireTargetResponse, error)
+	ListMultipleTarget(context.Context, *ListMultipleTargetRequest) (*ListMultipleTargetResponse, error)
 	ListAllTarget(context.Context, *ListAllTargetRequest) (*ListAllTargetResponse, error)
 	GetSingleTarget(context.Context, *GetSingleTargetRequest) (*GetSingleTargetResponse, error)
 }
@@ -77,6 +88,9 @@ type UnimplementedDestroyerServiceServer struct {
 
 func (UnimplementedDestroyerServiceServer) AcquireTarget(context.Context, *AcquireTargetRequest) (*AcquireTargetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AcquireTarget not implemented")
+}
+func (UnimplementedDestroyerServiceServer) ListMultipleTarget(context.Context, *ListMultipleTargetRequest) (*ListMultipleTargetResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListMultipleTarget not implemented")
 }
 func (UnimplementedDestroyerServiceServer) ListAllTarget(context.Context, *ListAllTargetRequest) (*ListAllTargetResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAllTarget not implemented")
@@ -110,6 +124,24 @@ func _DestroyerService_AcquireTarget_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(DestroyerServiceServer).AcquireTarget(ctx, req.(*AcquireTargetRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DestroyerService_ListMultipleTarget_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListMultipleTargetRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DestroyerServiceServer).ListMultipleTarget(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/destroyer.DestroyerService/ListMultipleTarget",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DestroyerServiceServer).ListMultipleTarget(ctx, req.(*ListMultipleTargetRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -160,6 +192,10 @@ var DestroyerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AcquireTarget",
 			Handler:    _DestroyerService_AcquireTarget_Handler,
+		},
+		{
+			MethodName: "ListMultipleTarget",
+			Handler:    _DestroyerService_ListMultipleTarget_Handler,
 		},
 		{
 			MethodName: "ListAllTarget",
