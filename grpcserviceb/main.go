@@ -30,16 +30,18 @@ type SubScribePayLoad struct {
 }
 
 func main() {
+	for {
 	 ConnectToNats()
 
 	subScribeAndWrite()
+}
 	
 
 }
 
 func ConnectToNats() (*nats.Conn, error) {
 
-	nc, err := nats.Connect("nats://nats:4222")
+	nc, err := nats.Connect("nats://Nats:4222")
 
 	if err != nil {
 		log.Println("coudl not connect to Nats", err.Error())
@@ -142,4 +144,5 @@ func subScribeAndWrite() {
 	//else diplay the id of the newly inserted ID
 	fmt.Println(target.InsertedID)
 }
+
 }
